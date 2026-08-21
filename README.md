@@ -16,11 +16,11 @@ Para representar el sistema, guardaremos la información estructurada en las sig
 * Métricas Fundamentales: Datos financieros trimestrales de las empresas (P/E Ratio, ROE, Deuda/Capital) para análisis.
 * Alertas: Reglas configuradas por el usuario para vigilar precios o métricas (ej: "Avisar si AAPL cae de $150").
 * Notificaciones: Registro de los avisos al usuario.
-<img src="https://github.com/FranRamallo/ProgramacionWebTP/raw/fe6fd8f6cc68ecd0b959f3e2453ed1ccf2f845ef/MVP_Gofolio.png" width="600" alt="MVP Gofolio">
+<img src="https://github.com/FranRamallo/ProgramacionWebTP/raw/fe6fd8f6cc68ecd0b959f3e2453ed1ccf2f845ef/MVP_Gofolio.png" width="900" alt="MVP Gofolio">
 
 # Cómo ejecutar el proyecto
 
-1. Asegúrate de tener Go instalado.
-2. Cambiar a la rama tp1 (git switch tp1)
-3. Abre una terminal en esta carpeta y ejecuta el siguiente comando:
-   go run main.go
+git clone https://github.com/FranRamallo/ProgramacionWebTP.git
+cd ProgramacionWebTP/servidor-go
+git switch tp1
+go run main.go
