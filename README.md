@@ -21,6 +21,9 @@ Para representar el sistema, guardaremos la información estructurada en las sig
 # Cómo ejecutar el proyecto
 
 git clone https://github.com/FranRamallo/ProgramacionWebTP.git
+
 cd ProgramacionWebTP/servidor-go
+
 git switch tp1
+
 go run main.go
