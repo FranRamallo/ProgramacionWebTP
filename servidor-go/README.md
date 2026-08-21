@@ -21,5 +21,6 @@ Para representar el sistema, guardaremos la información estructurada en las sig
 # Cómo ejecutar el proyecto
 
 1. Asegúrate de tener Go instalado.
-2. Abre una terminal en esta carpeta y ejecuta el siguiente comando:
+2. Cambiar a la rama tp1 (git switch tp1)
+3. Abre una terminal en esta carpeta y ejecuta el siguiente comando:
    go run main.go

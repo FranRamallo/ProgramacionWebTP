@@ -1,0 +1,19 @@
+body{
+    display: block;
+    text-align: center;
+}
+
+p{
+    width: 50%;
+    display: inline-block;
+}
+
+.tituloProyecto{
+    display: flex;
+    justify-content: center;
+}
+
+.logo{
+    height: 50px;
+    margin-top: 15px;
+}
