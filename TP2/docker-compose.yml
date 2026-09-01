@@ -1,0 +1,16 @@
+services:
+  api:
+    build: ./api
+    container_name: go-api
+    ports:
+      -"8080:8080"
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=apirest
+    depends_on:
+      - database
+    volumes:
+      - pgdata:/var/lib/postgresql/data
