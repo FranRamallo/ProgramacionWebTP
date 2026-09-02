@@ -2,4 +2,4 @@ module tp2.com/TP2
 
 go 1.26.5
 
-require github.com/lib/pq v1.12.3 // indirect
+require github.com/lib/pq v1.12.3
