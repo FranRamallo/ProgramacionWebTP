@@ -5,11 +5,11 @@ services:
     ports:
       -"8080:8080"
     environment:
-      - DB_HOST=database
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=apirest
+      - DB_HOST=${DATABASE_HOST}
+      - DB_PORT=${DATABASE_PORT}
+      - DB_USER=${DATABASE_USER}
+      - DB_PASSWORD=${DATABASE_PASSWORD}
+      - DB_NAME=${DATABASE_NAME}
     depends_on:
       - database
     volumes:
