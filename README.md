@@ -41,8 +41,8 @@ La capa de persistencia está construida sobre **PostgreSQL 15** y se diseñó p
 * **Índices Estratégicos:** Se crearon índices B-Tree (`CREATE INDEX`) explícitos en todas las claves foráneas (ej: `usuario_id`, `activo_id`) para optimizar los JOINs.
 
 ### 3. Generación de Capa de Acceso a Datos
-Para la interacción con la base de datos desde Go se evitó el uso de ORMs tradicionales. Se implementó **`sqlc`**, el cual compila los archivos `queries.sql` y `schema.sql` para generar código Go idiomático, *type-safe* y de alto rendimiento.
-Se respetan convenciones estrictas de operaciones CRUD (`:one`, `:many`, `:exec`), incluyendo el uso de cláusulas `ON CONFLICT DO UPDATE` (Upsert) para sincronizaciones eficientes de precios.
+Para la interacción con la base de datos se implementó **`sqlc`**, el cual compila los archivos `queries.sql` y `schema.sql` para generar código Go.
+Se respetan convenciones estrictas de operaciones CRUD (`:one`, `:many`, `:exec`), incluyendo el uso de cláusulas `ON CONFLICT DO UPDATE` (Upsert) para sincronizaciones eficientes de precios en `cotizacion_actual`.
 
 ---
 
@@ -53,10 +53,13 @@ La ejecución del entorno y las pruebas automatizadas se orquestan mediante Dock
 **Requisitos previos:**
 * Tener `Docker` y `Docker Compose` instalados.
 * Tener `Go` (1.22+) instalado localmente.
+* Tener `sqlc` instalado
 
-**Instrucciones paso a paso:**
+**Instrucciones:**
 
-1. Clonar el repositorio apuntando directamente a la rama de entrega:
+Clonacion del repositorio apuntando directamente a la rama de entrega y ejecucion del test:
    ```bash
-   git clone -b tp2 --single-branch [https://github.com/FranRamallo/ProgramacionWebTP.git](https://github.com/FranRamallo/ProgramacionWebTP.git)
+   git clone -b tp2 --single-branch https://github.com/FranRamallo/ProgramacionWebTP.git https://github.com/FranRamallo/ProgramacionWebTP.git
    cd ProgramacionWebTP
+   cd TP2_DB
+   make test
