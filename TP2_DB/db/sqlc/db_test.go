@@ -17,7 +17,7 @@ import (
 
 func openDB(t *testing.T) *sql.DB {
 	t.Helper()
-	conn, err := sql.Open("pgx", "postgres://postgres:postgres@localhost:5432/apirest?sslmode=disable")
+	conn, err := sql.Open("pgx", "postgres://postgres:postgres@localhost:7777/apirest?sslmode=disable")
 	if err != nil {
 		t.Fatalf("No se pudo abrir la conexión: %v", err)
 	}
