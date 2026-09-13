@@ -59,7 +59,7 @@ La ejecución del entorno y las pruebas automatizadas se orquestan mediante Dock
 
 Clonacion del repositorio apuntando directamente a la rama de entrega y ejecucion del test:
    ```bash
-   git clone -b tp2 --single-branch https://github.com/FranRamallo/ProgramacionWebTP.git https://github.com/FranRamallo/ProgramacionWebTP.git
+   git clone -b tp2 --single-branch https://github.com/FranRamallo/ProgramacionWebTP.git
    cd ProgramacionWebTP
    cd TP2_DB
    make test
