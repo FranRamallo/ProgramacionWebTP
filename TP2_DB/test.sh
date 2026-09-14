@@ -77,7 +77,7 @@ until dc exec -T "$DB_SERVICE" pg_isready -U "$DB_USER" -d "$DB_NAME" >/dev/null
     sleep 1
 done
 sleep 2 # Margen de seguridad para que el schema.sql termine de impactar
-log "    PostgreSQL listo (tardó ${elapsed}s)."
+log "PostgreSQL listo (tardó ${elapsed}s)."
 
 # ---------------------------------------------------------------------------
 # 2. Ejecución de tests
@@ -91,9 +91,6 @@ go test ./... -v
 TEST_EXIT_CODE=$?
 set -e
 
-# ---------------------------------------------------------------------------
-# 3. Tareas posteriores (Manejadas por el TRAP)
-# ---------------------------------------------------------------------------
 if [ "$TEST_EXIT_CODE" -eq 0 ]; then
     log "RESULTADO: Todos los tests pasaron exitosamente."
 else

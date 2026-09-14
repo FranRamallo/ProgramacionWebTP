@@ -1,13 +1,3 @@
--- GoFolio — db/queries/queries.sql
--- Consultas CRUD para sqlc. Una seccion por entidad, en el mismo
--- orden que db/schema/schema.sql.
--- Convenciones (segun catedra):
---   * columnas explicitas en SELECT/RETURNING, nunca *
---   * Create        -> :one  (INSERT ... RETURNING)
---   * Get           -> :one
---   * List          -> :many
---   * Update/Delete -> :exec (no devuelven filas)
-
 -- =========================================================
 -- sectores
 -- =========================================================
@@ -72,9 +62,6 @@ WHERE id = $1;
 
 -- =========================================================
 -- cotizaciones_actuales
--- PK = activo_id (relacion 1:1 con activos). En produccion el job
--- de sincronizacion usa un solo UPSERT (INSERT ... ON CONFLICT),
--- no Create + Update por separado; haciendo una unica consulta en vez de dos
 -- =========================================================
 
 -- name: UpsertCotizacionActual :one

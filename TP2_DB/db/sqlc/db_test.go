@@ -337,10 +337,6 @@ func TestTransaccion(t *testing.T) {
 	})
 }
 
-// ========================================================================
-// 4. TESTS DE DATOS FINANCIEROS
-// ========================================================================
-
 func TestCotizacionActual(t *testing.T) {
 	db := openDB(t)
 	queries := New(db)

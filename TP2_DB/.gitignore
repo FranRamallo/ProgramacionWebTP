@@ -2,5 +2,5 @@
 # Ignorar código autogenerado por sqlc
 db/sqlc/*.go
 
-# PERO incluir siempre los archivos de testing
+#incluir siempre los archivos de testing
 !db/sqlc/*_test.go
