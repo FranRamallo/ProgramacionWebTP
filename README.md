@@ -99,7 +99,7 @@ El proyecto cuenta con un flujo **100% automatizado** (`Makefile` + `test.sh`) q
   * *En macOS:* `brew install hurl`
   * *En Arch Linux:* `pacman -S hurl`
 
-### 1. Ejecución automatizada de los tests (Recomendado para corrección)
+### Ejecución automatizada de los tests 
 
 Clonar el repositorio apuntando a la rama **`tp3`** y ejecutar el comando de prueba:
 
