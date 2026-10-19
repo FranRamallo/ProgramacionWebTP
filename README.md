@@ -105,5 +105,5 @@ Clonar el repositorio apuntando a la rama **`tp3`** y ejecutar el comando de pru
 
 ```bash
 git clone -b tp3 --single-branch [https://github.com/FranRamallo/ProgramacionWebTP.git](https://github.com/FranRamallo/ProgramacionWebTP.git)
-cd ProgramacionWebTP/TP2_DB
+cd ProgramacionWebTP/TP3_DB
 make test-api
