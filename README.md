@@ -104,6 +104,6 @@ El proyecto cuenta con un flujo **100% automatizado** (`Makefile` + `test.sh`) q
 Clonar el repositorio apuntando a la rama **`tp3`** y ejecutar el comando de prueba:
 
 ```bash
-git clone -b tp3 --single-branch [https://github.com/FranRamallo/ProgramacionWebTP.git](https://github.com/FranRamallo/ProgramacionWebTP.git)
+git clone -b tp3 --single-branch https://github.com/FranRamallo/ProgramacionWebTP.git https://github.com/FranRamallo/ProgramacionWebTP.git
 cd ProgramacionWebTP/TP3_DB
 make test-api
