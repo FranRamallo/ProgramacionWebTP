@@ -165,7 +165,7 @@ TP3_DB/
 │   ├── queries/queries.sql          # consultas SQL (entrada de sqlc)
 │   └── sqlc/                        # código generado por sqlc (no se versiona) + db_test.go
 ├── static/styles.css                # estilos propios (se cargan después de Pico.css)
-├── tests/web.hurl                   # pruebas HTTP de las páginas
+├── web.hurl                         # pruebas HTTP de las páginas
 ├── docker-compose.yml               # PostgreSQL 15
 ├── run-app.sh · test.sh · Makefile
 └── sqlc.yaml
