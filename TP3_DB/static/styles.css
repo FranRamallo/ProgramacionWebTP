@@ -1,0 +1,83 @@
+/* GoFolio — estilos propios. Se cargan despues de Pico.css,
+   así que solo agregamos lo que Pico no trae: el layout de dos columnas y los
+   colores de compra/venta. */
+
+/* Dos columnas con Grid: formulario | historial */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 2fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* En pantallas chicas, una sola columna */
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Compra en verde, venta en rojo */
+td.compra {
+  color: var(--pico-ins-color, #12805c);
+  font-weight: 600;
+}
+
+td.venta {
+  color: var(--pico-del-color, #c0392b);
+  font-weight: 600;
+}
+
+/* Columnas numéricas alineadas a la derecha */
+th.num,
+td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mensaje de error del formulario */
+.error {
+  color: var(--pico-del-color, #c0392b);
+  font-size: 0.9rem;
+}
+
+/* El botón "Borrar" de cada fila no necesita el ancho completo ni los márgenes que Pico */
+table form,
+table form button[type="submit"] {
+  margin: 0;
+}
+
+table form button[type="submit"] {
+  width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+/* La fecha no se parte en dos líneas */
+table td:first-child {
+  white-space: nowrap;
+}
+
+/* Formulario compacto: achica el espacio vertical que Pico le da a cada campo
+   (se redefinen las variables de Pico solo dentro del formulario). */
+.layout article form {
+  --pico-form-element-spacing-vertical: 0.5rem;
+  --pico-spacing: 0.75rem;
+}
+
+/* Notas: una sola línea bajo el ticker, con "…" si no entra (completa al pasar el mouse) */
+.notas {
+  display: inline-block;
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  color: var(--pico-muted-color);
+}
+
+/* Celdas un poco más compactas para que la tabla entre en pantallas de laptop */
+table th,
+table td {
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+}

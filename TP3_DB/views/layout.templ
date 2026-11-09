@@ -1,0 +1,25 @@
+package views
+
+templ Layout(titulo string) {
+	<!DOCTYPE html>
+	<html lang="es" data-theme="light">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ titulo } · GoFolio</title>
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css"/>
+			<link rel="stylesheet" href="/static/styles.css"/>
+		</head>
+		<body>
+			<header class="container-fluid">
+				<hgroup>
+					<h1>GoFolio</h1>
+					<p>Registro de operaciones de tu portafolio</p>
+				</hgroup>
+			</header>
+			<main class="container-fluid">
+				{ children... }
+			</main>
+		</body>
+	</html>
+}

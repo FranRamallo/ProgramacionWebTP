@@ -1,0 +1,59 @@
+package views
+
+import db "github.com/FranRamallo/ProgramacionWebTP/db/sqlc"
+
+// TransaccionList recibe un slice de transacciones y las dibuja como tabla.
+// También recibe los activos para poder mostrar el ticker (la transacción solo
+// guarda el activo_id).
+templ TransaccionList(items []db.Transaccion, activos []db.Activo) {
+	<article>
+		<header>Historial de operaciones</header>
+		if len(items) == 0 {
+			<p>Todavía no registraste ninguna operación.</p>
+		} else {
+			<div class="overflow-auto">
+				<table class="striped">
+					<thead>
+						<tr>
+							<th scope="col">Fecha</th>
+							<th scope="col">Activo</th>
+							<th scope="col">Tipo</th>
+							<th scope="col" class="num">Cantidad</th>
+							<th scope="col" class="num">Precio</th>
+							<th scope="col" class="num">Comisión</th>
+							<th scope="col"></th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, t := range items {
+							<tr>
+								<td>{ formatFecha(t.FechaOperacion) }</td>
+								<td>
+									<strong>{ tickerDe(activos, t.ActivoID) }</strong>
+									if t.Notas.Valid && t.Notas.String != "" {
+										<br/>
+										<small class="notas" title={ t.Notas.String }>{ t.Notas.String }</small>
+									}
+								</td>
+								if t.TipoOperacion == "compra" {
+									<td class="compra">Compra</td>
+								} else {
+									<td class="venta">Venta</td>
+								}
+								<td class="num">{ formatDecimal(t.Cantidad) }</td>
+								<td class="num">{ formatPrecio(t.PrecioUnitario) }</td>
+								<td class="num">{ formatPrecio(t.Comision) }</td>
+								<td>
+									<form method="post" action="/transacciones/eliminar">
+										<input type="hidden" name="id" value={ t.ID.String() }/>
+										<button type="submit" class="outline secondary">Borrar</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</article>
+}

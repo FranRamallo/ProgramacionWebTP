@@ -1,0 +1,10 @@
+package views
+
+templ IndexPage(data IndexData) {
+	@Layout("Operaciones") {
+		<div class="layout">
+			@TransaccionForm(data.Activos, data.Form, data.Error)
+			@TransaccionList(data.Transacciones, data.Activos)
+		</div>
+	}
+}

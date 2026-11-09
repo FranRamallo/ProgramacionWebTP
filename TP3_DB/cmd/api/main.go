@@ -6,9 +6,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	// Driver de PostgreSQL (el guion bajo indica que solo necesitamos que se inicialice)
 	_ "github.com/lib/pq"
+
+	"github.com/google/uuid"
 
 	// Paquete generado por sqlc y capas internas del proyecto
 	db "github.com/FranRamallo/ProgramacionWebTP/db/sqlc"
@@ -16,6 +19,10 @@ import (
 	"github.com/FranRamallo/ProgramacionWebTP/internal/middleware"
 	"github.com/FranRamallo/ProgramacionWebTP/internal/services"
 )
+
+// usuarioDemoID es el usuario con el que opera la app mientras no exista login.
+// Tiene que coincidir con el que inserta db/seed/seed.sql.
+var usuarioDemoID = uuid.MustParse("11111111-1111-1111-1111-111111111111")
 
 func main() {
 	// Configuración de la conexión a la base de datos
@@ -54,68 +61,55 @@ func main() {
 	}
 	defer conn.Close()
 
-	if err := conn.Ping(); err != nil {
-		log.Fatalf("La base de datos no responde: %v", err)
+	// Postgres puede tardar unos segundos en aceptar conexiones después de
+	// levantar el contenedor, así que reintentamos antes de rendirnos.
+	var errPing error
+	for intento := 1; intento <= 30; intento++ {
+		if errPing = conn.Ping(); errPing == nil {
+			break
+		}
+		log.Printf("Esperando a la base de datos (%d/30): %v", intento, errPing)
+		time.Sleep(time.Second)
+	}
+	if errPing != nil {
+		log.Fatalf("La base de datos no responde: %v", errPing)
 	}
 	log.Println("Conexión a PostgreSQL establecida correctamente.")
 
 	// Crear la instancia del repositorio generado por sqlc
 	queries := db.New(conn)
 
-	// Inicializar la capa de Servicios (Inyección de dependencias)
-	sectorSvc := services.NewSectorService(queries)
+	// Capa de Servicios
 	activoSvc := services.NewActivoService(queries)
-	usuarioSvc := services.NewUsuarioService(queries)
 	transaccionSvc := services.NewTransaccionService(queries)
-	metricaSvc := services.NewMetricaFundamentalService(queries)
-	cotActualSvc := services.NewCotizacionActualService(queries)
-	cotHistoricaSvc := services.NewCotizacionHistoricaService(queries)
 
-	// Inicializar la capa de Handlers
-	sectorHandler := handlers.NewSectorHandler(sectorSvc)
-	activoHandler := handlers.NewActivoHandler(activoSvc)
-	usuarioHandler := handlers.NewUsuarioHandler(usuarioSvc)
-	transaccionHandler := handlers.NewTransaccionHandler(transaccionSvc)
-	metricaHandler := handlers.NewMetricaFundamentalHandler(metricaSvc)
-	cotActualHandler := handlers.NewCotizacionActualHandler(cotActualSvc)
-	cotHistoricaHandler := handlers.NewCotizacionHistoricaHandler(cotHistoricaSvc)
+	// Capa de Presentación: handler que responde HTML renderizado con templ
+	webHandler := handlers.NewWebHandler(transaccionSvc, activoSvc, usuarioDemoID)
 
 	// Configurar el enrutador (ServeMux)
 	mux := http.NewServeMux()
 
 	// Endpoint de salud
-	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status": "GoFolio API funcionando"}`))
+	mux.HandleFunc("GET /ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("ok"))
 	})
 
-	// Registro de rutas (con y sin barra final para soportar tanto colecciones como recursos por ID)
-	mux.HandleFunc("/sectores", sectorHandler.SectoresHandler)
-	mux.HandleFunc("/sectores/", sectorHandler.SectoresHandler)
+	// Archivos estáticos (CSS) bajo /static/
+	fs := http.FileServer(http.Dir("static"))
+	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
 
-	mux.HandleFunc("/activos", activoHandler.ActivosHandler)
-	mux.HandleFunc("/activos/", activoHandler.ActivosHandler)
-
-	mux.HandleFunc("/usuarios", usuarioHandler.UsuariosHandler)
-	mux.HandleFunc("/usuarios/", usuarioHandler.UsuariosHandler)
-
-	mux.HandleFunc("/transacciones", transaccionHandler.TransaccionesHandler)
-	mux.HandleFunc("/transacciones/", transaccionHandler.TransaccionesHandler)
-
-	mux.HandleFunc("/metricas-fundamentales", metricaHandler.MetricasFundamentalesHandler)
-	mux.HandleFunc("/metricas-fundamentales/", metricaHandler.MetricasFundamentalesHandler)
-
-	mux.HandleFunc("/cotizaciones-actuales", cotActualHandler.CotizacionesActualesHandler)
-	mux.HandleFunc("/cotizaciones-actuales/", cotActualHandler.CotizacionesActualesHandler)
-
-	mux.HandleFunc("/cotizaciones-historicas", cotHistoricaHandler.CotizacionesHistoricasHandler)
-	mux.HandleFunc("/cotizaciones-historicas/", cotHistoricaHandler.CotizacionesHistoricasHandler)
+	// Páginas (HTML renderizado en el servidor)
+	mux.HandleFunc("GET /{$}", webHandler.Index)
+	mux.HandleFunc("POST /transacciones", webHandler.Crear)
+	mux.HandleFunc("POST /transacciones/eliminar", webHandler.Eliminar)
 
 	// Envolver todo el enrutador con el middleware de Logging y levantar el servidor
 	handlerConMiddleware := middleware.Logging(mux)
 
-	port := ":8080"
+	port := ":" + os.Getenv("PORT")
+	if port == ":" {
+		port = ":8080"
+	}
 	log.Printf("Servidor corriendo en http://localhost%s", port)
 	if err := http.ListenAndServe(port, handlerConMiddleware); err != nil {
 		log.Fatalf("Error crítico en el servidor: %v", err)

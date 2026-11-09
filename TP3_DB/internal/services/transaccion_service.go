@@ -64,6 +64,9 @@ func (s *TransaccionService) Crear(ctx context.Context, usuarioID uuid.UUID, act
 	var notasNull sql.NullString
 	if notas != nil {
 		notasTrim := strings.TrimSpace(*notas)
+		if len([]rune(notasTrim)) > 200 {
+			return db.Transaccion{}, &ErrValidacion{"las notas no pueden superar los 200 caracteres"}
+		}
 		if notasTrim != "" {
 			notasNull = sql.NullString{String: notasTrim, Valid: true}
 		}
@@ -169,6 +172,9 @@ func (s *TransaccionService) Actualizar(
 	var notasNull sql.NullString
 	if notas != nil {
 		notasTrim := strings.TrimSpace(*notas)
+		if len([]rune(notasTrim)) > 200 {
+			return db.Transaccion{}, &ErrValidacion{"las notas no pueden superar los 200 caracteres"}
+		}
 		if notasTrim != "" {
 			notasNull = sql.NullString{String: notasTrim, Valid: true}
 		}

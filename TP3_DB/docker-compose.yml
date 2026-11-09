@@ -3,19 +3,23 @@ services:
     image: postgres:15
     container_name: postgres-db
     environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME:-apirest}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
     ports:
-      - "7777:5432"
+      - "${DB_PORT:-7777}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db/schema/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      # Postgres ejecuta estos scripts solo cuando el volumen está vacío:
+      - ./db/schema/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/seed/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
-      interval: 5s
+      # -h 127.0.0.1 fuerza la conexión por TCP. Sin eso, durante la inicialización
+      # el chequeo podía dar "listo" antes de aceptar conexiones de la app, y aparecía "connection reset by peer".
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${DB_USER:-postgres} -d ${DB_NAME:-apirest}"]
+      interval: 2s
       timeout: 5s
-      retries: 5
+      retries: 30
 
 volumes:
   pgdata:

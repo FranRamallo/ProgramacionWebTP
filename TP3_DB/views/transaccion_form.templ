@@ -1,0 +1,55 @@
+package views
+
+import db "github.com/FranRamallo/ProgramacionWebTP/db/sqlc"
+
+// TransaccionForm dibuja el formulario para registrar una operación.
+// Hace un POST clásico a /transacciones (sin JavaScript). Si hubo un error de
+// validación, recibe los valores que el usuario había escrito (v) y el mensaje
+// (mensajeError) para no hacerle tipear todo de nuevo.
+templ TransaccionForm(activos []db.Activo, v FormValues, mensajeError string) {
+	<article>
+		<header>Registrar operación</header>
+		<form method="post" action="/transacciones">
+			<label>
+				Activo
+				<select name="activo_id" required>
+					<option value="" disabled selected?={ v.ActivoID == "" }>Elegí un activo…</option>
+					for _, a := range activos {
+						<option value={ idStr(a.ID) } selected?={ idStr(a.ID) == v.ActivoID }>{ a.Ticker } — { a.NombreEmpresa }</option>
+					}
+				</select>
+			</label>
+			<div class="grid">
+				<label>
+					Tipo
+					<select name="tipo_operacion" required>
+						<option value="compra" selected?={ v.Tipo != "venta" }>Compra</option>
+						<option value="venta" selected?={ v.Tipo == "venta" }>Venta</option>
+					</select>
+				</label>
+				<label>
+					Cantidad
+					<input type="number" name="cantidad" step="any" min="0" required value={ v.Cantidad }/>
+				</label>
+			</div>
+			<div class="grid">
+				<label>
+					Precio (USD)
+					<input type="number" name="precio_unitario" step="any" min="0" required value={ v.Precio }/>
+				</label>
+				<label>
+					Comisión (USD)
+					<input type="number" name="comision" step="any" min="0" value={ v.Comision }/>
+				</label>
+			</div>
+            <label>
+				Notas (opcional)
+				<input type="text" name="notas" maxlength="200" value={ v.Notas }/>
+			</label>
+			if mensajeError != "" {
+				<p class="error" role="alert">{ mensajeError }</p>
+			}
+			<button type="submit">Registrar</button>
+		</form>
+	</article>
+}
