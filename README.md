@@ -206,7 +206,7 @@ make test
 
 Hace lo mismo que `run-app.sh` (generar, compilar, base nueva, app en segundo plano) y ejecuta:
 
-* **`tests/web.hurl`:** 13 peticiones HTTP contra las páginas: principal con los datos del seed, archivos estáticos, alta válida con redirect `303`, validaciones `400` (cantidad inválida, activo inválido), borrado (incluido el doble borrado y el id inválido), `404` y `405`.
+* **`web.hurl`:** 13 peticiones HTTP contra las páginas: principal con los datos del seed, archivos estáticos, alta válida con redirect `303`, validaciones `400` (cantidad inválida, activo inválido), borrado (incluido el doble borrado y el id inválido), `404` y `405`.
 * **`go test -count=1 ./...`:** los tests de la capa de datos (`db/sqlc`), que ejecutan el CRUD de las 7 entidades. `-count=1` desactiva la caché de Go, porque los resultados dependen de la base. Estos tests se conectan siempre a `localhost:7777` con las credenciales por defecto.
 
 Al terminar limpia todo (app, `bin/`, contenedores y volúmenes), aunque algo falle.
