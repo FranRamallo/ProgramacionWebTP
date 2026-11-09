@@ -29,7 +29,7 @@ El servidor genera el HTML con **templ** y los estilos usan **Pico.css**. No hay
 
 ```bash
 git clone -b tp5 --single-branch https://github.com/FranRamallo/ProgramacionWebTP.git
-cd ProgramacionWebTP/TP3_DB
+cd ProgramacionWebTP/TP5_WEB
 make run-app            # equivalente: bash run-app.sh
 ```
 
@@ -143,10 +143,10 @@ acceso a datos se reutilizaron sin modificaciones, que es justamente lo que busc
 `templ generate` convierte cada `.templ` en `*_templ.go` (Go normal, tipado y con escape automático de
 HTML). El binario final no necesita templ instalado.
 
-### Estructura de `TP3_DB/`
+### Estructura de `TP5_WEB/`
 
 ```
-TP3_DB/
+TP5_WEB/
 ├── cmd/api/main.go                  # arma dependencias y rutas, levanta el servidor
 ├── views/                           # presentación (templ)
 │   ├── layout.templ                 # <html>, <head> con Pico.css, <body>
