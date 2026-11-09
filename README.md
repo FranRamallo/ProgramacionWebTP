@@ -25,8 +25,7 @@ El servidor genera el HTML con **templ** y los estilos usan **Pico.css**. No hay
 
 ## Cómo ejecutar (TP5)
 
-**Requisitos:** Go 1.24 o superior, Docker con Docker Compose v2 (`docker compose`), `make` e internet
-(imágenes de Docker, módulos de Go y Pico.css por CDN). No hace falta instalar `sqlc` ni `templ`.
+**Requisitos:** Go 1.21 o superior (el `go.mod` pide la 1.26.5: si tu versión es menor, Go descarga solo ese toolchain la primera vez), Docker con Docker Compose v2 (`docker compose`), `make` e internet
 
 ```bash
 git clone -b tp5 --single-branch https://github.com/FranRamallo/ProgramacionWebTP.git
