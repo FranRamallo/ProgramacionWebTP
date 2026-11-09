@@ -193,7 +193,7 @@ TP3_DB/
 |---|---|
 | `index.html` + `app.js` consumían la API con `fetch` | Vistas templ renderizadas en el servidor |
 | Handlers JSON por entidad (`/sectores`, `/activos`, `/transacciones`, …) | `WebHandler` con rutas de página |
-| Tests de la API JSON con Hurl (`requests.hurl`) | Pruebas HTTP de las páginas (`tests/web.hurl`) |
+| Tests de la API JSON con Hurl (`requests.hurl`) | Pruebas HTTP de las páginas (`web.hurl`) |
 | `test.sh` único | `run-app.sh` (ejecutar) y `test.sh` (probar) |
 
 ---
