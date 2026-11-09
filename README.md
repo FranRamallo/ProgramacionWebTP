@@ -2,7 +2,7 @@
 
 **Dominio elegido:** GoFolio, una aplicación web para registrar transacciones y gestionar un portafolio de inversiones financieras.
 
-**Integrantes:** Franco Ramallo, Jeronimo Pourtauf
+**Integrantes:** Franco Ramallo, Jeronimo Pourtau Fleischmacher,Juan Bautista, Galvan
 
 | TP | Qué se construyó |
 |---|---|
