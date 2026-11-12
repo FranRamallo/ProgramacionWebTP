@@ -1,0 +1,29 @@
+
+package views
+
+import db "tp5/db/sqlc"
+
+templ ProductList(products []db.Product) {
+    <h2>Lista de productos</h2>
+
+    if len(products) == 0 {
+        <p>No hay productos disponibles.</p>
+    } else {
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                for _, product := range products {
+                    <tr>
+                        <td>{ product.Name }</td>
+                        <td>{ product.Price }</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

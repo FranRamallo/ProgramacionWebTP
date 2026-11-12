@@ -1,0 +1,17 @@
+.flex-container{
+    display: flex;
+    flex-direction: column;
+    background-color: blue;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    width: 500px;
+    height: 500px;
+}
+
+.flex-item{
+    background-color: red;
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+}

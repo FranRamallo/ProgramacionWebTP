@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TP4</title>
+  </head>
+  <body>
+    <h1 id="titulo">Titulo</h1>
+    <p class="descripcion">Parrafo</p>
+    <button id="cambiarTexto">Boton</button>
+    <div id="contenido-dinamico"></div>
+    <ul id="lista-items"></ul>
+    <input type="text" id="nuevo-item-texto" />
+    <button id="agregar">Agregar</button>
+    <button id="eliminar">Eliminar</button>
+  </body>
+  <script>
+    const tituloPagina = document.getElementById("titulo");
+    tituloPagina.textContent = "Pagina Interactiva";
+
+    const parrafoNuevo = document.querySelector(".descripcion");
+    parrafoNuevo.style.border = "1px solid red";
+
+    const miBoton = document.getElementById("cambiarTexto");
+    miBoton.addEventListener("click", function () {
+      const contenidoDiv = document.getElementById("contenido-dinamico");
+      const nuevaLista = document.createElement("ul");
+      contenidoDiv.appendChild(nuevaLista);
+
+      const nuevoItem1 = document.createElement("li");
+      const nuevoItem2 = document.createElement("li");
+      const nuevoItem3 = document.createElement("li");
+
+      nuevoItem1.textContent = "Elemento 1";
+      nuevoItem2.textContent = "Elemento 2";
+      nuevoItem3.textContent = "Elemento 3";
+
+      nuevaLista.appendChild(nuevoItem1);
+      nuevaLista.appendChild(nuevoItem2);
+      nuevaLista.appendChild(nuevoItem3);
+    });
+
+    const botonAgregar = document.getElementById("agregar");
+    botonAgregar.addEventListener("click", function () {
+      const contenidoLista = document.getElementById("lista-items");
+      const contendioInput = document.getElementById("nuevo-item-texto");
+      const nuevoItem4 = document.createElement("li");
+      nuevoItem4.textContent = contendioInput.value;
+      contendioInput.value = "";
+      contenidoLista.appendChild(nuevoItem4);
+    });
+
+    const botonEliminar = document.getElementById("eliminar");
+
+    botonEliminar.addEventListener("click", function () {
+      const contenidoLista = document.getElementById("lista-items");
+
+      if (contenidoLista.lastElementChild) {
+        contenidoLista.removeChild(contenidoLista.lastElementChild);
+      }
+    });
+  </script>
+</html>
