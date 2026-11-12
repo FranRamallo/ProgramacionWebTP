@@ -32,10 +32,10 @@ func (h *WebHandler) Index(w http.ResponseWriter, r *http.Request) {
 	h.renderIndex(w, r, http.StatusOK, formVacio, "")
 }
 
-// Crear atiende POST /transacciones (Post/Redirect/Get):
+// Crear atiende POST /transacciones (lo envía HTMX con hx-post):
 //
-//	OK       -> 303 See Other hacia "/" (el navegador hace un GET y ve la lista nueva).
-//	Inválido -> vuelve a dibujar la página con 400, el mensaje y lo que el usuario escribio.
+//	OK       -> 200 con SOLO la lista actualizada (HTMX la pone en #lista-transacciones).
+//	Inválido -> 400 con la página completa; HTMX toma de ahí solo el mensaje de error.
 func (h *WebHandler) Crear(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Formulario inválido", http.StatusBadRequest)
@@ -71,31 +71,25 @@ func (h *WebHandler) Crear(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	h.renderLista(w, r)
 }
 
-// Eliminar atiende POST /transacciones/eliminar.
 func (h *WebHandler) Eliminar(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Formulario inválido", http.StatusBadRequest)
-		return
-	}
-
-	id, err := uuid.Parse(r.PostFormValue("id"))
+	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "El ID de la transacción debe ser un UUID válido", http.StatusBadRequest)
 		return
 	}
 
 	err = h.transacciones.Eliminar(r.Context(), id, h.usuarioID)
-	// Si ya no existía (por ejemplo, doble clic), igual volvemos a la lista.
+	// Si ya no existía (por ejemplo, doble clic), igual respondemos OK para que la fila desaparezca.
 	if err != nil && !errors.Is(err, services.ErrTransaccionNoEncontrada) {
 		log.Printf("[WEB] error eliminando transacción: %v", err)
 		http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	w.WriteHeader(http.StatusOK)
 }
 
 // renderIndex junta los datos que necesita la página principal y la dibuja con el
@@ -125,6 +119,28 @@ func (h *WebHandler) renderIndex(w http.ResponseWriter, r *http.Request, status 
 	}).Render(r.Context(), w)
 	if err != nil {
 		// Ya empezamos a escribir la respuesta, así que no se puede cambiar el status: solo lo registramos.
+		log.Printf("[WEB] error renderizando la vista: %v", err)
+	}
+}
+
+// renderLista vuelve a consultar la lista completa y responde solo con ese componente
+func (h *WebHandler) renderLista(w http.ResponseWriter, r *http.Request) {
+	activos, err := h.activos.Listar(r.Context())
+	if err != nil {
+		log.Printf("[WEB] error listando activos: %v", err)
+		http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
+		return
+	}
+
+	transacciones, err := h.transacciones.ListarPorUsuario(r.Context(), h.usuarioID)
+	if err != nil {
+		log.Printf("[WEB] error listando transacciones: %v", err)
+		http.Error(w, "Error interno del servidor", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := views.TransaccionList(transacciones, activos).Render(r.Context(), w); err != nil {
 		log.Printf("[WEB] error renderizando la vista: %v", err)
 	}
 }

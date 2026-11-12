@@ -42,15 +42,11 @@ td.num {
 }
 
 /* El botón "Borrar" de cada fila no necesita el ancho completo ni los márgenes que Pico */
-table form,
-table form button[type="submit"] {
-  margin: 0;
-}
+table button { width: auto; margin: 0; padding: 0.25rem 0.75rem; }
 
-table form button[type="submit"] {
-  width: auto;
-  padding: 0.25rem 0.75rem;
-}
+/* Fila "lista vacía": siempre está en la tabla pero oculta; se muestra solo cuando es la única fila */
+tr.vacio { display: none; }
+tr.vacio:only-child { display: table-row; }
 
 /* La fecha no se parte en dos líneas */
 table td:first-child {

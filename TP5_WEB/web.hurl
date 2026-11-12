@@ -15,14 +15,15 @@ body contains "ok"
 GET http://localhost:8080/
 HTTP 200
 [Captures]
-tx_id: xpath "string(//tbody/tr[1]//input[@name='id']/@value)"
+tx_path: xpath "string(//tbody/tr[1]//button/@hx-delete)"
 [Asserts]
 header "Content-Type" contains "text/html"
 body contains "Registrar operación"
 body contains "Historial de operaciones"
 body contains "Toma de ganancias parcial"
 xpath "//select[@name='activo_id']/option" count == 6
-xpath "//tbody/tr" count == 5
+xpath "//tbody/tr[not(@class='vacio')]" count == 5
+xpath "//button[@hx-delete]" count == 5
 xpath "string(//tbody/tr[1]/td[2]/strong)" == "JPM"
 
 # 2. Archivos estáticos
@@ -35,7 +36,7 @@ header "Content-Type" contains "text/css"
 GET http://localhost:8080/no-existe
 HTTP 404
 
-# 4. Alta válida => Post/Redirect/Get: 303 hacia "/"
+# 4. Alta válida => 200 con SOLO el fragmento de la lista (sin redirección)
 POST http://localhost:8080/transacciones
 [FormParams]
 activo_id: 2
@@ -44,15 +45,17 @@ cantidad: 3
 precio_unitario: 123.45
 comision: 0.5
 notas: Compra de prueba
-HTTP 303
+HTTP 200
 [Asserts]
-header "Location" == "/"
+body not contains "<html"
+xpath "//article[@id='lista-transacciones']" count == 1
+xpath "//tbody/tr[not(@class='vacio')]" count == 6
 
 # 5. La operación nueva aparece en el historial
 GET http://localhost:8080/
 HTTP 200
 [Asserts]
-xpath "//tbody/tr" count == 6
+xpath "//tbody/tr[not(@class='vacio')]" count == 6
 body contains "$123.45"
 body contains "Compra de prueba"
 
@@ -81,30 +84,24 @@ HTTP 400
 [Asserts]
 body contains "Elegí un activo de la lista"
 
-# 8. Borrar una operación => 303 hacia "/"
-POST http://localhost:8080/transacciones/eliminar
-[FormParams]
-id: {{tx_id}}
-HTTP 303
+# 8. Borrar una operación => 200 con el cuerpo vacío (HTMX saca la fila de la tabla)
+DELETE http://localhost:8080{{tx_path}}
+HTTP 200
 [Asserts]
-header "Location" == "/"
+body == ""
 
-# 9. Borrarla de nuevo (ya no existe) no rompe: vuelve a "/"
-POST http://localhost:8080/transacciones/eliminar
-[FormParams]
-id: {{tx_id}}
-HTTP 303
+# 9. Borrarla de nuevo (ya no existe) no rompe: también 200
+DELETE http://localhost:8080{{tx_path}}
+HTTP 200
 
 # 10. Ya no está en el historial (6 - 1 = 5)
 GET http://localhost:8080/
 HTTP 200
 [Asserts]
-xpath "//tbody/tr" count == 5
+xpath "//tbody/tr[not(@class='vacio')]" count == 5 
 
 # 11. ID inválido => 400
-POST http://localhost:8080/transacciones/eliminar
-[FormParams]
-id: no-es-un-uuid
+DELETE http://localhost:8080/transacciones/no-es-un-uuid
 HTTP 400
 
 # 12. Método no permitido sobre "/" => 405

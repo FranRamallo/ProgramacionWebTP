@@ -9,7 +9,16 @@ import db "github.com/FranRamallo/ProgramacionWebTP/db/sqlc"
 templ TransaccionForm(activos []db.Activo, v FormValues, mensajeError string) {
 	<article>
 		<header>Registrar operación</header>
-		<form method="post" action="/transacciones">
+		<form
+			method="post"
+			action="/transacciones"
+			hx-post="/transacciones"
+			hx-target="#lista-transacciones"
+			hx-swap="outerHTML"
+			hx-status:400="target:#error-transaccion select:#error-transaccion swap:outerHTML"
+			hx-on::before:request="this.querySelector('#error-transaccion').innerHTML = ''"
+			hx-on::after:request="if (event.detail.ctx.response.raw.ok) this.reset()"
+		>
 			<label>
 				Activo
 				<select name="activo_id" required>
@@ -42,13 +51,15 @@ templ TransaccionForm(activos []db.Activo, v FormValues, mensajeError string) {
 					<input type="number" name="comision" step="any" min="0" value={ v.Comision }/>
 				</label>
 			</div>
-            <label>
+			<label>
 				Notas (opcional)
 				<input type="text" name="notas" maxlength="200" value={ v.Notas }/>
 			</label>
-			if mensajeError != "" {
-				<p class="error" role="alert">{ mensajeError }</p>
-			}
+			<div id="error-transaccion">
+				if mensajeError != "" {
+					<p class="error" role="alert">{ mensajeError }</p>
+				}
+			</div>
 			<button type="submit">Registrar</button>
 		</form>
 	</article>

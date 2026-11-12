@@ -101,7 +101,7 @@ func main() {
 	// Páginas (HTML renderizado en el servidor)
 	mux.HandleFunc("GET /{$}", webHandler.Index)
 	mux.HandleFunc("POST /transacciones", webHandler.Crear)
-	mux.HandleFunc("POST /transacciones/eliminar", webHandler.Eliminar)
+	mux.HandleFunc("DELETE /transacciones/{id}", webHandler.Eliminar)
 
 	// Envolver todo el enrutador con el middleware de Logging y levantar el servidor
 	handlerConMiddleware := middleware.Logging(mux)
