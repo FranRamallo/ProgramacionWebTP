@@ -11,10 +11,10 @@ Documentación completa de GoFolio en su versión final (TP6). Para ejecutar la 
 Una página única donde el usuario administra las operaciones (compras y ventas) de su portafolio:
 
 * **Historial de operaciones:** fecha, activo, tipo, cantidad, precio, comisión y notas.
-* **Registrar una operación:** formulario con activo, tipo, cantidad, precio, comisión y notas opcionales. Al enviarlo, la lista se actualiza sola, **sin recargar la página**. Si los datos no son válidos, aparece el mensaje de error debajo del formulario y la lista no cambia.
+* **Registrar una operación:** formulario con activo, tipo, cantidad, precio, comisión y notas opcionales. Al enviarlo, la lista se actualiza sola y el formulario se vacía, **sin recargar la página**. Si los datos no son válidos, aparece el mensaje de error debajo del formulario, la lista no cambia y lo escrito se conserva.
 * **Borrar una operación** desde el historial: el botón pide confirmación y la fila desaparece sin recargar. Si era la última, aparece el mensaje "Todavía no registraste ninguna operación".
 
-El servidor sigue generando el HTML con **templ** (TP5) y los estilos usan **Pico.css**. La novedad es **HTMX**, una librería que se carga por CDN: en vez de navegar a otra página, el navegador pide el HTML en segundo plano y reemplaza solo la parte que cambió. No hay archivos JavaScript: la interactividad se declara con atributos `hx-*` en el HTML (la única línea de código del lado del cliente es una expresión corta en `hx-on` que vacía el mensaje de error; ver [Decisiones de diseño](#decisiones-de-diseño-tp6)) y **el repositorio no contiene archivos `.js`**.
+El servidor sigue generando el HTML con **templ** (TP5) y los estilos usan **Pico.css**. La novedad es **HTMX**, una librería que se carga por CDN: en vez de navegar a otra página, el navegador pide el HTML en segundo plano y reemplaza solo la parte que cambió. No hay archivos JavaScript: la interactividad se declara con atributos `hx-*` en el HTML (el único código del lado del cliente son dos expresiones de una línea en `hx-on`: una vacía el mensaje de error y la otra vacía el formulario después de un alta exitosa; ver [Decisiones de diseño](#decisiones-de-diseño-tp6)) y **el repositorio no contiene archivos `.js`**.
 
 ---
 
@@ -47,7 +47,8 @@ Estas son las dos únicas piezas de HTMX que usa la aplicación (están en `view
       hx-target="#lista-transacciones"
       hx-swap="outerHTML"
       hx-status:400="target:#error-transaccion select:#error-transaccion swap:outerHTML"
-      hx-on::before:request="this.querySelector('#error-transaccion').innerHTML = ''">
+      hx-on::before:request="this.querySelector('#error-transaccion').innerHTML = ''"
+      hx-on::after:request="if (event.detail.ctx.response.raw.ok) this.reset()">
 
 <!-- Botón de cada fila -->
 <button hx-delete="/transacciones/{id}"
@@ -64,6 +65,7 @@ Estas son las dos únicas piezas de HTMX que usa la aplicación (están en `view
 | `hx-confirm` | Preguntar antes de enviar (diálogo del navegador) |
 | `hx-status:400` | Si el servidor responde `400`, tomar de la respuesta solo el bloque `#error-transaccion` y ponerlo en el formulario (la lista no se toca) |
 | `hx-on::before:request` | Antes de enviar el formulario ejecuta una expresión corta que vacía el mensaje de error anterior (así un error viejo no queda visible junto a una operación que sí se registró) |
+| `hx-on::after:request` | Cuando llega la respuesta, si fue exitosa (`2xx`) vacía el formulario con `this.reset()`; si fue un `400` no hace nada, así que el usuario conserva lo que escribió y corrige |
 
 ### Rutas
 
@@ -98,11 +100,12 @@ sequenceDiagram
         S-->>H: ok
         H->>S: ListarPorUsuario y listar activos
         H-->>N: 200 solo TransaccionList
+        N->>N: hx-on vacía el formulario (respuesta exitosa)
         N->>N: reemplaza el contenedor lista-transacciones (outerHTML)
     else ErrValidacion
         S-->>H: error de validación
         H-->>N: 400 página completa (con el mensaje)
-        N->>N: toma solo el bloque error-transaccion y lo muestra en el formulario
+        N->>N: toma solo el bloque error-transaccion y lo muestra, el formulario conserva lo escrito
     end
 ```
 
@@ -218,7 +221,8 @@ HTML). El binario final no necesita templ instalado.
 * **El servidor devuelve fragmentos de HTML, no JSON.** Es la idea de HTMX: el servidor sigue siendo el dueño de la presentación (templ) y el navegador solo reemplaza partes de la página.
 * **`hx-swap="outerHTML"` sobre `#lista-transacciones`** (y no `beforeend`): después de un alta el servidor vuelve a consultar y devuelve la lista completa, ya ordenada. Así la pantalla nunca queda distinta de lo que hay en la base.
 * **Un `400` no reemplaza la lista.** En HTMX 4, por defecto solo `204` y `304` no se intercambian, así que un `400` pondría la página entera dentro de `#lista-transacciones`. Con `hx-status:400` se le indica que tome solo `#error-transaccion` de la respuesta. El handler reutiliza `renderIndex` para el error, sin una vista extra.
-* **El mensaje de error se limpia antes de cada envío.** El formulario tiene `hx-on::before:request="this.querySelector('#error-transaccion').innerHTML = ''"`: una expresión corta (la única línea de código del lado del cliente de la aplicación) que vacía el bloque del error. Así un error viejo no queda visible junto a una operación que sí se registró. Existe una alternativa sin código cliente: que el servidor incluya en la respuesta del alta un fragmento `<div id="error-transaccion" hx-swap-oob="true"></div>` ("out of band"); se probó y funciona, pero se mantuvo `hx-on` porque es más directo y no requiere tocar el servidor.
+* **El mensaje de error se limpia antes de cada envío.** El formulario tiene `hx-on::before:request="this.querySelector('#error-transaccion').innerHTML = ''"`: una expresión de una línea que vacía el bloque del error. Así un error viejo no queda visible junto a una operación que sí se registró. Existe una alternativa sin código cliente: que el servidor incluya en la respuesta del alta un fragmento `<div id="error-transaccion" hx-swap-oob="true"></div>` ("out of band"); se probó y funciona, pero se mantuvo `hx-on` porque es más directo y no requiere tocar el servidor.
+* **El formulario se vacía solo después de un alta exitosa.** El alta reemplaza únicamente la lista (`#lista-transacciones`), no el formulario, así que los campos seguirían con lo último escrito. `hx-on::after:request="if (event.detail.ctx.response.raw.ok) this.reset()"` corre cuando llega la respuesta y, solo si fue `2xx`, llama a `reset()`, que devuelve cada campo a su valor inicial del HTML (activo sin elegir, tipo Compra, comisión `0`). Con un `400` no se resetea: el usuario ve el error y corrige sin volver a tipear todo. Junto con la anterior son las dos únicas expresiones de código cliente de la aplicación.
 * **Borrado con `DELETE` real.** En el TP5 el borrado era un `POST` con el `id` en un campo oculto, porque un formulario HTML solo sabe enviar `GET` o `POST`. HTMX usa `fetch`, que sí puede enviar `DELETE`, así que ahora la ruta es REST: `DELETE /transacciones/{id}`.
 * **Borrado tolerante:** si la operación ya no existe (doble clic o pestaña desactualizada) igual se responde `200`, para que la fila desaparezca. El `DELETE` filtra por `id` **y** `usuario_id`, así que un usuario nunca puede borrar operaciones ajenas.
 * **La tabla se dibuja siempre y el mensaje de "lista vacía" lo muestra el CSS** (ver arriba). Evita volver a pedir la lista al borrar y no agrega lógica al servidor.
@@ -246,7 +250,7 @@ HTML). El binario final no necesita templ instalado.
 | `POST /transacciones/eliminar` con el `id` en un campo oculto | `DELETE /transacciones/{id}` → `200` con cuerpo vacío |
 | Error de validación: página completa con `400` | Igual, pero HTMX toma solo el bloque del error (`hx-status:400`) |
 | "Lista vacía" decidida por el servidor (`<p>` condicional) | Tabla siempre presente + fila `.vacio` que muestra el CSS |
-| Sin JavaScript | Sin archivos `.js`: HTMX por CDN y una expresión `hx-on` |
+| Sin JavaScript | Sin archivos `.js`: HTMX por CDN y dos expresiones de una línea en `hx-on` |
 | `web.hurl`: respuestas `303` y `POST` de borrado | `web.hurl`: `200` con fragmento y `DELETE`, más casos de escape de HTML y de estado vacío |
 
 ---
@@ -350,8 +354,8 @@ Hurl no ejecuta CSS ni JavaScript, así que verifica que el HTML tenga la fila `
 ### Probarlo a mano
 
 1. Abrí `http://localhost:8080` y las herramientas de desarrollo del navegador (`F12`) en la pestaña **Network**.
-2. Registrá una operación: aparece en la lista y en Network solo hay una petición `fetch` (`POST /transacciones`), sin pedido de documento ni recarga.
-3. Probá con cantidad `0`: el mensaje de error aparece bajo el formulario y la lista no cambia.
+2. Registrá una operación: aparece en la lista, el formulario se vacía y en Network solo hay una petición `fetch` (`POST /transacciones`), sin pedido de documento ni recarga.
+3. Probá con cantidad `0`: el mensaje de error aparece bajo el formulario, la lista no cambia y lo que escribiste se conserva.
 4. Tocá **Borrar**, aceptá la confirmación: sale un `DELETE /transacciones/{id}` y la fila desaparece. Si borrás todas, aparece el mensaje de lista vacía.
 
 ---
@@ -361,6 +365,7 @@ Hurl no ejecuta CSS ni JavaScript, así que verifica que el HTML tenga la fila `
 Detalles comprobados en el navegador que conviene conocer si se sigue extendiendo la interfaz:
 
 * **`hx-on::<evento>` ejecuta JavaScript inline.** `hx-on::before:request` es la forma corta de escuchar el evento `htmx:before:request`.
+* **`htmx:after:request` se dispara cuando llegó la respuesta, antes de intercambiar el contenido.** En `event.detail.ctx.response.raw` está el `Response` de `fetch`, cuyo `.ok` es `true` para los `2xx`.
 * **`204` no intercambia contenido.** Para "reemplazar por nada" (borrado) hay que responder `200` con cuerpo vacío.
 * **Los `4xx`/`5xx` sí se intercambian** en HTMX 4 (solo `204` y `304` no). Por eso el `400` del alta necesita `hx-status:400`.
 * **`hx-trigger="… changed"` solo mira el `.value` del elemento que tiene el trigger.** En un `<tr>` o un `<div>` no hay valor y nunca dispara; para escuchar inputs hijos alcanza con `hx-trigger="input delay:300ms"`.

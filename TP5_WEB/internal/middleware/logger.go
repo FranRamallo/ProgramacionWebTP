@@ -23,7 +23,7 @@ func Logging(next http.Handler) http.Handler {
 		duracion := time.Since(inicio)
 
 		// Imprimimos el resultado en la consola
-		log.Printf("[API] %s %s | IP: %s | Tiempo: %v",
+		log.Printf("[WEB] %s %s | IP: %s | Tiempo: %v",
 			r.Method, r.URL.Path, r.RemoteAddr, duracion)
 	})
 }

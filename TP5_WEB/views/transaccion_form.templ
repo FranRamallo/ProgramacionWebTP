@@ -3,9 +3,10 @@ package views
 import db "github.com/FranRamallo/ProgramacionWebTP/db/sqlc"
 
 // TransaccionForm dibuja el formulario para registrar una operación.
-// Hace un POST clásico a /transacciones (sin JavaScript). Si hubo un error de
-// validación, recibe los valores que el usuario había escrito (v) y el mensaje
-// (mensajeError) para no hacerle tipear todo de nuevo.
+// Lo envía HTMX (hx-post): la respuesta reemplaza la lista y, si hay un error de
+// validación, solo se muestra el bloque #error-transaccion. method y action quedan
+// como respaldo por si HTMX no carga. Si hubo un error, recibe los valores que el
+// usuario había escrito (v) y el mensaje (mensajeError) para no hacerle tipear todo de nuevo.
 templ TransaccionForm(activos []db.Activo, v FormValues, mensajeError string) {
 	<article>
 		<header>Registrar operación</header>

@@ -22,7 +22,7 @@ Una página única donde el usuario administra las operaciones (compras y ventas
 * **Registrar una operación:** al enviar el formulario la lista se actualiza sola, **sin recargar la página**. Si los datos no son válidos, aparece el mensaje de error debajo del formulario.
 * **Borrar una operación:** el botón pide confirmación y la fila desaparece sin recargar.
 
-El servidor genera el HTML con **templ** y los estilos usan **Pico.css**. La interactividad la aporta **HTMX** (librería cargada por CDN): el navegador pide HTML en segundo plano y reemplaza solo la parte que cambió. No hay archivos JavaScript: la interactividad se declara con atributos `hx-*` directamente en el HTML y **el repositorio no contiene archivos `.js`**.
+El servidor genera el HTML con **templ** y los estilos usan **Pico.css**. La interactividad la aporta **HTMX** (librería cargada por CDN): el navegador pide HTML en segundo plano y reemplaza solo la parte que cambió. No hay archivos JavaScript: la interactividad se declara con atributos `hx-*` directamente en el HTML (incluye dos expresiones de una línea en `hx-on`: una limpia el mensaje de error y la otra vacía el formulario tras un alta exitosa) y **el repositorio no contiene archivos `.js`**.
 
 ## Cómo ejecutar
 
