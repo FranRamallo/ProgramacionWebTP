@@ -229,6 +229,7 @@ HTML). El binario final no necesita templ instalado.
 * **Un handler por pantalla, un servicio por entidad.** `WebHandler` combina los servicios que necesita la página principal (transacciones y activos); cada servicio mantiene la lógica de una sola entidad.
 * **Validación en el borde, una sola vez.** El handler valida el *formato* (que el activo sea un número, que el `id` sea un UUID) y el servicio valida las *reglas de negocio* (cantidad mayor a 0, tipo permitido, activo existente, largo de las notas).
 * **Errores inesperados:** se registran en el log y responden `500` sin mostrar detalles internos.
+* **Todo texto del usuario sale escapado (XSS).** Las notas y el valor devuelto en el formulario con error se escriben con `{ ... }` de templ, que convierte `<`, `>`, `&`, `"` y `'` en entidades (`&lt;`, `&gt;`, `&amp;`, `&#34;`, `&#39;`). Una nota como `<script>alert(1)</script>` se ve como texto y no se ejecuta. Está cubierto por `web.hurl` (ver [Pruebas](#pruebas)).
 * **Notas opcionales, máximo 200 caracteres.** La columna `notas` es `TEXT` (sin tope), así que el límite se valida en el servicio (el `maxlength` del formulario es solo comodidad). En el historial se muestran en una línea bajo el ticker, cortadas con "…" y completas al pasar el mouse (`title`).
 * **Usuario demo fijo:** sin login, `main.go` le pasa al handler el `usuarioID` del usuario creado por `db/seed/seed.sql`. Cuando se implementen sesiones se reemplaza por el usuario autenticado y habrá que agregar protección CSRF.
 * **Pico.css por CDN** (versión fija `2.1.1`) + `static/styles.css` para el layout de dos columnas, los colores de compra/venta y el botón compacto de borrado.
@@ -246,7 +247,7 @@ HTML). El binario final no necesita templ instalado.
 | Error de validación: página completa con `400` | Igual, pero HTMX toma solo el bloque del error (`hx-status:400`) |
 | "Lista vacía" decidida por el servidor (`<p>` condicional) | Tabla siempre presente + fila `.vacio` que muestra el CSS |
 | Sin JavaScript | Sin archivos `.js`: HTMX por CDN y una expresión `hx-on` |
-| `web.hurl`: respuestas `303` y `POST` de borrado | `web.hurl`: `200` con fragmento y `DELETE` |
+| `web.hurl`: respuestas `303` y `POST` de borrado | `web.hurl`: `200` con fragmento y `DELETE`, más casos de escape de HTML y de estado vacío |
 
 ---
 
@@ -334,15 +335,17 @@ make test
 
 Hace lo mismo que `run-app.sh` (generar, compilar, base nueva, app en segundo plano) y ejecuta:
 
-* **`web.hurl`:** 13 peticiones HTTP contra las páginas: principal con los datos del seed (5 filas y 5 botones `hx-delete`), archivos estáticos, `404`, alta válida (`200` con **solo** el fragmento de la lista: sin `<html>`, un único `#lista-transacciones` y 6 filas), validaciones `400` (cantidad inválida, activo inválido), borrado con `DELETE` (`200` y cuerpo vacío; el doble borrado también responde `200`; id inválido `400`), la fila desaparece del historial y `405`.
+* **`web.hurl`:** 25 peticiones HTTP contra las páginas, en tres bloques:
+  * **Flujo normal (0-12):** principal con los datos del seed (5 filas y 5 botones `hx-delete`), archivos estáticos, `404`, alta válida (`200` con **solo** el fragmento de la lista: sin `<html>`, un único `#lista-transacciones` y 6 filas), validaciones `400` (cantidad inválida, activo inválido), borrado con `DELETE` (`200` y cuerpo vacío; el doble borrado también responde `200`; id inválido `400`), la fila desaparece del historial y `405`.
+  * **Escape de HTML (13-16):** notas con `<script>alert(1)</script>` y con `" onmouseover="alert(1)` (intento de salirse del atributo `title`), y la misma etiqueta dentro del valor que vuelve en el formulario con error `400`. Se comprueba el DOM, no solo el texto: no puede aparecer ningún `<script>` nuevo ni un atributo `onmouseover`, y el texto escrito tiene que seguir ahí, como entidades (`&lt;script&gt;`). Después se vuelve a pedir `GET /` para verificar que lo guardado en la base también sale escapado.
+  * **Estado vacío (17-24):** se borran las 7 operaciones y se pide `GET /`: no queda ninguna fila de datos ni botón de borrar, la única fila del `<tbody>` es `.vacio` con el texto "Todavía no registraste ninguna operación", y el resto de la página (lista, formulario con sus 6 opciones) sigue completo. Va al final porque deja el historial sin operaciones; como cada `make test` arranca con una base nueva, no afecta a nada más.
 * **`go test -count=1 ./...`:** los tests de la capa de datos (`db/sqlc`), que ejecutan el CRUD de las 7 entidades. `-count=1` desactiva la caché de Go, porque los resultados dependen de la base. Estos tests se conectan siempre a `localhost:7777` con las credenciales por defecto.
 
 Al terminar limpia todo (app, `bin/`, contenedores y volúmenes), aunque algo falle.
 Requiere [Hurl](https://hurl.dev): `brew install hurl` (macOS), `pacman -S hurl` (Arch), o el paquete
 `.deb` desde [Hurl Releases](https://github.com/Orange-OpenSource/hurl/releases) (Ubuntu/Debian).
 
-El comportamiento en el navegador (que la página no se recargue, la confirmación, el mensaje de lista vacía) no lo cubre Hurl:
-se verifica a mano con los pasos de [Probarlo a mano](#probarlo-a-mano).
+Hurl no ejecuta CSS ni JavaScript, así que verifica que el HTML tenga la fila `.vacio` pero no que el navegador la muestre. Ese comportamiento (que la página no se recargue, la confirmación de borrado, que el mensaje se vea al borrar la última operación) se verifica a mano con los pasos de [Probarlo a mano](#probarlo-a-mano).
 
 ### Probarlo a mano
 

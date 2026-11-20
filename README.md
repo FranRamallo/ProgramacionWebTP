@@ -71,7 +71,7 @@ Sin configurar nada funciona. Para cambiar un valor, exportalo antes de ejecutar
 make test
 ```
 
-Genera, compila, levanta una base nueva y ejecuta las pruebas HTTP de las páginas (`web.hurl`, 13 peticiones con [Hurl](https://hurl.dev)) y los tests de Go de la capa de datos (`go test`). Al terminar limpia todo. Hurl solo hace falta para los tests: `brew install hurl` (macOS), `pacman -S hurl` (Arch) o el `.deb` desde [Hurl Releases](https://github.com/Orange-OpenSource/hurl/releases) (Ubuntu/Debian). Detalle en [docs/DOCUMENTACION.md](docs/DOCUMENTACION.md#ejecución-y-pruebas).
+Genera, compila, levanta una base nueva y ejecuta las pruebas HTTP de las páginas (`web.hurl`, 25 peticiones con [Hurl](https://hurl.dev), que incluyen el escape de HTML y el estado vacío) y los tests de Go de la capa de datos (`go test`). Al terminar limpia todo. Hurl solo hace falta para los tests: `brew install hurl` (macOS), `pacman -S hurl` (Arch) o el `.deb` desde [Hurl Releases](https://github.com/Orange-OpenSource/hurl/releases) (Ubuntu/Debian). Detalle en [docs/DOCUMENTACION.md](docs/DOCUMENTACION.md#ejecución-y-pruebas).
 
 ## Estructura del repositorio
 
