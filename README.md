@@ -30,7 +30,7 @@ El servidor genera el HTML con **templ** y los estilos usan **Pico.css**. La int
 
 ```bash
 git clone -b tp6 --single-branch https://github.com/FranRamallo/ProgramacionWebTP.git
-cd ProgramacionWebTP
+cd ProgramacionWebTP/TP5_WEB
 make run-app            # equivalente: bash TP5_WEB/run-app.sh
 ```
 
