@@ -105,8 +105,55 @@ func main() {
 			return
 		}
 
-		// 6. Redirigir a la página principal.
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		// 6. Obtener la lista actualizada de productos.
+		products, err := queries.ListProducts(r.Context())
+		if err != nil {
+			log.Println("Error al obtener productos:", err)
+			http.Error(w, "Error al obtener productos", http.StatusInternalServerError)
+			return
+		}
+
+		// 7. Renderizar la lista actualizada.
+		if err := views.ProductList(products).Render(r.Context(), w); err != nil {
+			log.Println("Error al renderizar la lista de productos:", err)
+			return
+		}
+
+		// 8. Devolver un formulario vacío mediante Out-of-Band Swap.
+		if err := views.ProductFormOOB().Render(r.Context(), w); err != nil {
+			log.Println("Error al renderizar el formulario:", err)
+			return
+		}
+	})
+
+	// Ruta para eliminar productos.
+	http.HandleFunc("/products/", func(w http.ResponseWriter, r *http.Request) {
+		// Verificar que sea una petición DELETE.
+		if r.Method != http.MethodDelete {
+			http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// 1. Extraer el ID desde la URL.
+		idStr := strings.TrimPrefix(r.URL.Path, "/products/")
+
+		// 2. Convertir el ID a int64.
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err != nil || id <= 0 {
+			http.Error(w, "ID de producto inválido", http.StatusBadRequest)
+			return
+		}
+
+		// 3. Eliminar el producto utilizando sqlc.
+		err = queries.DeleteProduct(r.Context(), id)
+		if err != nil {
+			log.Println("Error al eliminar el producto:", err)
+			http.Error(w, "Error al eliminar el producto", http.StatusInternalServerError)
+			return
+		}
+
+		// 4. Devolver una respuesta vacía con estado 200 OK.
+		w.WriteHeader(http.StatusOK)
 	})
 
 	// 5. Iniciar el servidor HTTP.

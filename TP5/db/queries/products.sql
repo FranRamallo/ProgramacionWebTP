@@ -7,3 +7,5 @@ ORDER BY name;
 -- name: CreateProduct :exec
 INSERT INTO products (name, price)
 VALUES (?, ?);
+-- name: DeleteProduct :exec
+DELETE FROM products WHERE id = ?;
