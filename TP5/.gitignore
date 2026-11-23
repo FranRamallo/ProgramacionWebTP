@@ -1,6 +1,7 @@
 /.env
 # Ignorar código autogenerado por sqlc
 db/sqlc/*.go
+db/sqlc/*.sql.go
 
 # PERO incluir siempre los archivos de testing
 !db/sqlc/*_test.go
